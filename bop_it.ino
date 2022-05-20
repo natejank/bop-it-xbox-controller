@@ -26,17 +26,26 @@
 #define FLICK_PIN 20
 #define TOGGLE_PIN 21
 
-#define A_BUTTON 1
-#define B_BUTTON 2
-#define X_BUTTON 3
-#define Y_BUTTON 4
-#define START_BUTTON 8
-#define SELECT_BUTTON 7
-// 
-#define LEFT_BUMPER 5
-#define RIGHT_BUMPER 6
-#define LEFT_JOYSTICK_CLICK 9
-#define RIGHT_JOYSTICK_CLICK 10
+/** XBOX CONTROLLER BINDINGS
+ * A: 1
+ * B: 2
+ * X: 3
+ * Y: 4
+ * Left bumper: 5
+ * Right bumper: 6
+ * SELECT: 7
+ * START: 8
+ * Left joystick click: 9
+ * Right joystick click: 10
+ * 
+ */
+
+#define CENTER_BUTTON 1
+#define TWIST_BUTTON 2
+#define PULL_BUTTON 3
+#define SPIN_BUTTON 4
+#define FLICK_BUTTON 5
+#define TOGGLE_BUTTON 6
 
 struct Bop_It {
   bool center;
@@ -83,40 +92,18 @@ void loop() {
   bop_it.flick = (bop_it.flick) ? true : !digitalRead(FLICK_PIN);
   bop_it.toggle = (bop_it.toggle) ? true : !digitalRead(TOGGLE_PIN);
 
+  // update after interval
   if(millis() - last_update > POLLING_RATE) {
     last_update += POLLING_RATE;
-    if (bop_it.toggle) {
-      gamepad.SetButton(A_BUTTON, bop_it.twist);
-      gamepad.SetButton(B_BUTTON, bop_it.pull);
-      gamepad.SetButton(X_BUTTON, bop_it.spin);
-      gamepad.SetButton(Y_BUTTON, bop_it.flick);
-      gamepad.SetButton(START_BUTTON, bop_it.center);
-    } else {
-      gamepad.SetButton(SELECT_BUTTON, bop_it.center);
-      gamepad.SetButton(LEFT_BUMPER, bop_it.twist);
-      gamepad.SetButton(RIGHT_BUMPER, bop_it.pull);
-      gamepad.SetButton(LEFT_JOYSTICK_CLICK, bop_it.spin);
-      gamepad.SetButton(RIGHT_JOYSTICK_CLICK, bop_it.flick);
-    }
+    gamepad.SetButton(CENTER_BUTTON, bop_it.center);
+    gamepad.SetButton(TWIST_BUTTON, bop_it.twist);
+    gamepad.SetButton(PULL_BUTTON, bop_it.pull);
+    gamepad.SetButton(SPIN_BUTTON, bop_it.spin);
+    gamepad.SetButton(FLICK_BUTTON, bop_it.flick);
+    gamepad.SetButton(TOGGLE_BUTTON, bop_it.toggle);
 
     gamepad.send_update();
     digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));  // flash the led for funsies
-    char print_buffer[100];
-    sprintf(
-      print_buffer,
-      "A:%u B:%u X:%u Y:%u START:%u SELECT:%u L_BUMP:%u R_BUMP:%u R_STICK:%u L_STICK:%u",
-      bop_it.toggle && bop_it.twist,
-      bop_it.toggle && bop_it.pull,
-      bop_it.toggle && bop_it.spin,
-      bop_it.toggle && bop_it.flick,
-      bop_it.toggle && bop_it.center,
-      !bop_it.toggle && bop_it.center,
-      !bop_it.toggle && bop_it.twist,
-      !bop_it.toggle && bop_it.pull,
-      !bop_it.toggle && bop_it.spin,
-      !bop_it.toggle && bop_it.flick
-    );
-    Serial.println(print_buffer);
     bop_it = {false, false, false, false, false, false};
   }
 }
